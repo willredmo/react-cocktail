@@ -1,0 +1,21 @@
+#header {
+    // height: 300px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    height: 100px;
+    hr {
+        width: 100%;
+    }
+    h1 {
+        font-weight: 100;
+        font-size: 40px;
+        margin: 0;
+        margin-left: 10px;
+    }
+    button {
+        margin-right: 10px;
+    }
+}
+

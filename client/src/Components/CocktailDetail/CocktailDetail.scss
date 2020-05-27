@@ -1,0 +1,62 @@
+#drinkDetail {
+    .header {
+        margin: 5px;
+        display: flex;
+        height: 350px;
+        .thumbnail, .headerInfo {
+            width: 50%;
+        }
+        .headerInfo {
+            display: flex;
+            flex-direction: column;
+            h1 {
+                font-weight: 300;
+            }
+            .filter {
+                margin: 10px 10px;
+                .MuiInputBase-root.Mui-disabled, 
+                .MuiFormLabel-root.Mui-disabled {
+                    color:rgba(0, 0, 0, 0.87);
+                }
+                .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-notchedOutline {
+                    border-color: rgba(0, 0, 0, 0.87);
+                }
+            }
+        }
+        
+    }
+    .info {
+        margin: 10px;
+        display: flex;
+        h2 {
+            font-weight: 400;
+        }
+        & > div {
+            width: 50%;
+        }
+        .ingredients {
+            .MuiListItem-root {
+                display: flex;
+                flex-wrap: wrap;
+                .MuiAvatar-root {
+                    width: 100px;
+                    height: 100px;
+                }
+                .MuiDivider-root {
+                    width: 100%;
+                    background-color: rgba(0, 0, 0, .25);
+                }
+                .text p, .text span {
+                    font-size: 1.075em;
+                }
+            }
+            
+        }
+        .instructions {
+            p {
+                text-align: left;
+                padding: 5px;
+            }
+        }
+    }
+}

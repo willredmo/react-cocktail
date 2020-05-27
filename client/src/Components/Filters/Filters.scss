@@ -1,0 +1,17 @@
+#filters {
+    padding: 10px;
+    height: 100%;
+    width: calc(50% - 20px);
+    padding: 0 10px;
+    h1 {
+        font-weight: 300;
+    }
+    .filter {
+        margin: 10px 0;
+        display: flex;
+        width: 100%;
+        & > .MuiFormControl-root, & > .MuiAutocomplete-root  {
+            width: 100%;
+        }
+    }
+}
