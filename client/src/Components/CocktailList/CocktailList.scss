@@ -1,6 +1,6 @@
 #CocktailList {
     width: 50%;
-    height: calc(100% - 50px);
+    height: calc(100% - 40px);
     overflow-y: auto;
 
     .CocktailItem {
@@ -24,14 +24,29 @@
             position: inherit;
             background-color: #fff;
         }
-        // .img {
-        //     width: 100%;
-        //     height: 140px;
-        //     position: absolute;
-        //     z-index: -1;
-        //     background-size: cover;
-        //     transition: all 300ms;
-        //     filter: grayscale(90%);
-        // }
+    }
+    .CocktailItem.active .thumbnail {
+        filter: none;
+        transform: scale(1.15);
+    }
+    
+}
+
+/* Medium sized screen */
+@media screen and (max-width: 1300px) {
+    #CocktailList {
+        width: 100%;
+    }
+}
+
+/* Small sized screens */
+@media screen and (max-width: 700px) {
+    #CocktailList {
+        .CocktailItem {
+            .thumbnail {
+                height: 230px;
+                filter: none;
+            }
+        }
     }
 }

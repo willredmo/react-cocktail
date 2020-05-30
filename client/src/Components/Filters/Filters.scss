@@ -3,6 +3,7 @@
     height: 100%;
     width: calc(50% - 20px);
     padding: 0 10px;
+    overflow-y: auto;
     h1 {
         font-weight: 300;
     }
@@ -13,5 +14,27 @@
         & > .MuiFormControl-root, & > .MuiAutocomplete-root  {
             width: 100%;
         }
+    }
+}
+
+/* Medium sized screen */
+@media screen and (max-width: 1300px) {
+    #filters {
+        right: 100%;
+        width: calc(100% - 20px);
+        background-color: #F7F7F7;
+        transition: right 1s;
+        position: absolute;
+        z-index: 1;
+        top: 40px;
+        height: calc(100% - 40px);
+    }
+
+    #filters.show {
+        right: 0;
+    }
+
+    #filters.hide {
+        right: 100%;
     }
 }

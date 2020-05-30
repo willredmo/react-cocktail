@@ -1,3 +1,7 @@
+
+import Axios from 'axios';
+
+
 export const GetCocktailData = () => {
     const data = {
         drinks: {
@@ -99,3 +103,13 @@ export const GetCocktailData = () => {
         }, 100);
     });
 }
+
+export const getDrinkDetails = async (drinkId) => {
+    const response = await Axios.get("/api/getDrinkDetails/"+drinkId);
+    return response.data;
+};
+
+export const getRandomDrinkDetails = async () => {
+    const response = await Axios.get("/api/getRandomDrinkDetails/");
+    return response.data;
+};

@@ -3,32 +3,32 @@ import './CocktailList.scss';
 import { Card, CardActionArea, Typography, CardMedia  } from '@material-ui/core';
 import { Link } from "react-router-dom";
 
-const CocktailList = ({ drinks }) => {
-    // const [greeting, setGreeting] = useState("Create Cocktails");
+const CocktailList = (props) => {
+
     return (
-        // Content
         <div id="CocktailList">
-            {Object.keys(drinks).map((key, index) => {
-                const drink = drinks[key];
+            {Object.keys(props.drinks).map((key, index) => {
+                const drink = props.drinks[key];
+                const className = props.currentDrink === drink.id ? "active" : "";
                 return (
-                    <CocktailItem key={drink.id} drink={drink}/>
+                    <CocktailItem className={className} key={drink.id} drink={drink} onClick={props.selectDrink}/>
                 );
             })}
         </div>
     );
 };
 
-const CocktailItem = ({ drink }) => {
+const CocktailItem = (props) => {
     return (
-        <Card className="CocktailItem">
-            <Link to={"/cocktail/"+drink.id}>
+        <Card className={"CocktailItem "+ props.className}>
+            <Link to={"/cocktail/"+props.drink.id} onClick={() => { props.onClick(props.drink.id) }}>
                 <CardActionArea>
                     <CardMedia
                         className="thumbnail"
-                        image={drink.thumbnail}
+                        image={props.drink.thumbnail}
                     />
                     <Typography className="drinkName" gutterBottom variant="h5" component="h2">
-                        {drink.name}
+                        {props.drink.name}
                     </Typography>
                 </CardActionArea>
             </Link>

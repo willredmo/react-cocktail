@@ -3,15 +3,18 @@ var env = process.env.NODE_ENV || "development",
     path = require("path"),
     express = require("express"),
     bodyParser = require('body-parser'),
-    logger = require("../config/logger.js");
+    Logger = require("../config/logger.js"),
+    configFile = require("./secret.json");
 
 // Logger
-global.logger = new logger([
+global.logger = new Logger([
     "config",
     "db",
     "service",
     "routes",
 ]);
+
+// Total possible log levels: config, db, service, routes
 
 logger.log("config", "Loading Server in "+env+" mode.");
 
@@ -20,6 +23,7 @@ global.Server = {
     port: process.env.PORT || 3001,
     version: packageJson.version,
     root: path.join(__dirname, ".."),
+    path: path,
     appPath: function(path) {
         return this.root+"/"+path;
     },
@@ -39,22 +43,21 @@ global.Server = {
 Server.app.use(bodyParser.urlencoded({ extended: true }));
 Server.app.use(bodyParser.json());
 
-var clientRouter = App.require("routes/client.routes.js");
-Server.app.use("/", clientRouter);
-
-var apiRouter = Server.require("routes/api.routes.js");
-Server.app.use('/api', apiRouter);
+var router = Server.require("routes.js");
+Server.app.use('/', router);
 
 // DB
-// var Mongodb = Server.require("db/db.js");
-// var db = new Mongodb("mongodb://localhost:27017", "db");
-// Server.db = db;
-// Server.db.connect().then((res) => {
-//     logger.log("db", res);
-// }).catch((rej) => {
-//     logger.log("db", "Error: "+rej);
-// });
+var DB = Server.require("db/db.js");
+Server.db = new DB(configFile.dbUrl, "db");
+Server.db.connect().then((res) => {
+    logger.log("db", res);
+}).catch((rej) => {
+    logger.log("db", "Error: "+rej);
+});
 
 
 // Client
-Server.app.use(express.static(__dirname + "/client")); // for static content
+// console.log(__dirname + "/../../client/build");
+// console.log(__dirname);
+// fs.readFile(__dirname + '/../../client/build/index.html');
+Server.app.use(express.static(__dirname + "/../../client/build")); // for static content

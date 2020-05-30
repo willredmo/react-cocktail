@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './CocktailDetail.scss';
-import { TextField, Card, CardMedia, List, ListItem, ListItemText, ListItemAvatar, Avatar, Divider, Paper } from '@material-ui/core';
+import { TextField, Card, CardMedia, List, ListItem, ListItemText, ListItemAvatar, Avatar, Divider, Paper, Button} from '@material-ui/core';
+import { ArrowBackIos } from '@material-ui/icons';
 
-const CocktailDetail = ({ drink }) => {
+const CocktailDetail = (props) => {
     const renderFilter = (filter, value) => {
         return (
             <TextField
@@ -17,21 +18,23 @@ const CocktailDetail = ({ drink }) => {
     
     return (
         <div id="drinkDetail">
+            <Button className="goBack" variant="contained" color="primary" size="small" startIcon={<ArrowBackIos/>} onClick={props.goBack}>
+                Go Back
+            </Button>
             <Card className="header">
-                <CardMedia className="thumbnail" image={drink.thumbnail}/>
-                {/* <div className="img" style={backgroundImg}></div> */}
+                <CardMedia className="thumbnail" image={props.drink.thumbnail}/>
                 <div className="headerInfo">
-                    <h1>{drink.name}</h1>
-                    {renderFilter("Category", drink.category)}
-                    {renderFilter("Glass", drink.glass)}
-                    {renderFilter("Alcohol Content", drink.alcoholic)}
+                    <h1>{props.drink.name}</h1>
+                    {renderFilter("Category", props.drink.category)}
+                    {renderFilter("Glass", props.drink.glass)}
+                    {renderFilter("Alcohol Content", props.drink.alcoholic)}
                 </div>
             </Card>
             <Paper elevation={4} className="info">
                 <div className="ingredients">
                     <h2>Ingredients</h2>
                     <List>
-                        {drink.ingredients.map((ingredient, index) => {
+                        {props.drink.ingredients.map((ingredient, index) => {
                             var isFirst = index === 0;
                             return (
                                 <ListItem alignItems="flex-start" key={ingredient.name}>
@@ -47,7 +50,7 @@ const CocktailDetail = ({ drink }) => {
                 </div>
                 <div className="instructions">
                     <h2>Instructions</h2>
-                    <p>{drink.instructions}</p>
+                    <p>{props.drink.instructions}</p>
                 </div>
             </Paper>      
         </div>

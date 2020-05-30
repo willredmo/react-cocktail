@@ -2,11 +2,11 @@ import React from 'react';
 import './Header.scss';
 import { Button } from '@material-ui/core';
 
-const Header = ({ handleClick }) => {
+const Header = (props) => {
     return (
         <div id="header">
             <h1>Discover New Cocktails</h1>
-            <Button variant="contained" onClick={handleClick} color="primary">Random Drink</Button>
+            <Button variant="contained" onClick={props.handleClick} color="primary">Random Drink</Button>
             <hr/>    
         </div>
     );
