@@ -35,6 +35,8 @@ const Filters = forwardRef((props, ref) => {
         setAlcoholicFilters(newValue);
     };
 
+    // console.log(props);
+
 
     useEffect(() => {
         // Send filters
@@ -49,7 +51,7 @@ const Filters = forwardRef((props, ref) => {
         if (search !== "" || categories.length !== 0 || categories.length !== 0 
                 || ingredients.length !== 0 || glasses.length !== 0 || glasses.length !== 0) {
             console.log("Send filters to backend");
-            console.log(filters);
+            // console.log(filters);
         } else {
             console.log("Show all");
         }
@@ -91,9 +93,9 @@ const Filters = forwardRef((props, ref) => {
                 multiple
                 options={options}
                 disableCloseOnSelect
-                getOptionLabel={(option) => option}
+                getOptionLabel={(option) => option.name}
                 renderOption={(option, { selected }) => (
-                    renderCheckBox(option, selected)
+                    renderCheckBox(option.name, selected)
                 )}
                 renderInput={(params) => (
                     <TextField {...params} variant="outlined" label={label} placeholder="" />

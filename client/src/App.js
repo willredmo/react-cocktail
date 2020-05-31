@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './App.scss';
 import Header from './Components/Header/Header';
-import { GetCocktailData, getDrinkDetails } from "./API";
+import { getAllData, getDrinkDetails, getRandomDrinkDetails } from "./API";
 import CocktailDetail from './Components/CocktailDetail/CocktailDetail';
 import CocktailList from './Components/CocktailList/CocktailList';
 import Filters from './Components/Filters/Filters';
@@ -18,12 +18,44 @@ const App = () => {
   const [redirect, setRedirect] = useState(null);
   const [currentDrink, setCurrentDrink] = useState(null);
 
-  const handleGetRandomDrink = () => {
-    var drinkIds = Object.keys(data.drinks);
-    var randomDrink = data.drinks[drinkIds[drinkIds.length * Math.random() << 0]];
-    setRedirect("/cocktail/"+randomDrink.id);
-    setNewDrink(id);
-    setCurrentDrink(randomDrink.id);
+    // Does once at start of app
+    useEffect(() => {
+      // Sets current drink according url params
+      const getCocktialFromParam = async () => {
+        const path = window.location.pathname;
+        if (/^\/cocktail\/\d+$/.test(path)) {
+          var drinkId = path.split("/")[2];
+          var drink = await getDrinkDetails(drinkId);
+          if (drink.hasOwnProperty("message")) {
+            console.log(drink.message);
+            setRedirect("/");
+          } else {
+            setCurrentDrink(drink);
+          }
+        }
+      }
+      
+      // Gets drink list and 
+      const fetchData = async () => {
+        const data = await getAllData();
+        console.log(data);
+        setData(data);
+      }
+  
+      fetchData();
+      getCocktialFromParam();
+    }, []);
+
+  // Sets url to current drink which tells router to render current drink
+  useEffect(() => {
+    if (currentDrink != null) {
+      setRedirect("/cocktail/"+currentDrink.id);
+    }
+  }, [currentDrink]);
+
+  const handleGetRandomDrink = async () => {
+    var drink = await getRandomDrinkDetails();
+    setCurrentDrink(drink);
   }
 
   const handleGoBack = () => {
@@ -31,51 +63,16 @@ const App = () => {
     setCurrentDrink(null);
   }
 
-  const handleSelectDrink = (id) => {
+  const handleSelectDrink = async (id) => {
     setRedirect(null);
-    // setCurrentDrink(id);
-    setNewDrink(id);
-  }
-
-  // Get data
-  useEffect(() => {
-    const fetchData = async () => {
-      const test = await getDrinkDetails(17222);
-      console.log(test);
-      const data = await GetCocktailData();
-      console.log(data);
-      setData(data);
-    }
-    fetchData();
-  }, []);
-
-  // Check if url is valid
-  useEffect(() => {
-    if (Object.keys(data).length !== 0) {
-      const path = window.location.pathname;
-      if (/^\/cocktail\/\d+$/.test(path)) {
-        // Check that cocktail id exists
-        var drinkId = path.split("/")[2];
-        if (data.drinkIds.includes(drinkId)) {
-          // setCurrentDrink(drinkId)
-          setNewDrink(drinkId);
-        } else {
-          setRedirect("/");
-        }
-      }
-    }
-  }, [data]);
-
-  const setNewDrink = async (id) => {
     var drink = await getDrinkDetails(id);
     setCurrentDrink(drink);
   }
 
   const renderCocktail = (routerProps) => {
-    let cocktailId = routerProps.match.params.id;
-    if (data.drinkIds.includes(cocktailId)) {
-      return <CocktailDetail drink={data.drinks[cocktailId]} goBack={handleGoBack}/>;
-    } 
+    if (currentDrink != null) {
+      return <CocktailDetail drink={currentDrink} goBack={handleGoBack}/>;
+    }
   };
 
   const theme = createMuiTheme({
@@ -97,7 +94,12 @@ const App = () => {
           {Object.keys(data).length !== 0 &&
             <div id="content" className={currentDrink !== null ? "showingDrink" : "" }>
               <div id="left">
-                <Filters data={data} ref={filterRef}/>
+                <Filters data={{
+                  categories: data.filters.categories,
+                  ingredients: data.filters.ingredients,
+                  glasses: data.filters.glasses,
+                  alcoholicFilters: data.filters.alcoholicFilters
+                }} ref={filterRef}/>
                 <div className="filterTotalDrinks">
                   <Button className="showFilters" variant="contained" color="primary" size="small" startIcon={<MenuOpen/>} onClick={() => filterRef.current.handleShowFilters()}>
                     Filters

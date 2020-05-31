@@ -7,8 +7,8 @@ router.get('/', (req, res) => {
 
 // Set api routes
 var apiService = Server.require("service/api.js");
-router.route("/api/getAllDrinks").get(apiService.getAllDrinks);
-router.route("/api/filterDrinks").get(apiService.filterDrinks);
+router.route("/api/getAllData").get(apiService.getAllData);
+router.route("/api/filterDrinkList").get(apiService.filterDrinkList);
 router.route("/api/getDrinkDetails/:drinkId").get(apiService.getDrinkDetails);
 router.route("/api/getRandomDrinkDetails").get(apiService.getRandomDrinkDetails);
 

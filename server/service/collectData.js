@@ -4,6 +4,18 @@ exports.collectData = async (req, res) => {
     // Disable so users cannot reset data
     res.send("Cannot collect data at moment");
     return;
+
+    // Todo fix
+    // {
+    //     "_id": "5ed2a820a89c34630483dc82",
+    //     "name": "Non Alcoholic",
+    //     "__v": 0
+    // },
+    // {
+    //     "_id": "5ed2a815a89c34630483d8b6",
+    //     "name": "Non alcoholic",
+    //     "__v": 0
+    // },
     
     // Clear old data
     await Server.db.clearData();

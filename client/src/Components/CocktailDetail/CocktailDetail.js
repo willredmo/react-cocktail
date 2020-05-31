@@ -37,7 +37,7 @@ const CocktailDetail = (props) => {
                         {props.drink.ingredients.map((ingredient, index) => {
                             var isFirst = index === 0;
                             return (
-                                <ListItem alignItems="flex-start" key={ingredient.name}>
+                                <ListItem alignItems="flex-start" key={ingredient.id}>
                                     {!isFirst && <Divider/>}
                                     <ListItemAvatar>
                                         <Avatar src={"https://www.thecocktaildb.com/images/ingredients/"+ingredient.name+".png"} />

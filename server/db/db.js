@@ -103,6 +103,29 @@ class DB {
         return this.drink.create(newDrink);
     }
 
+    // Gets drink list and filters
+    async getAllData() {
+        var drinks = await this.drink.find({}, {id: 1, name: 1, thumbnail: 1, _id: 0}).sort({name: 1});
+        var categories = await this.category.find({}, {name: 1, _id: 0}).sort({name: 1});
+        var ingredients = await this.ingredient.find({ filter: true }, {name: 1, _id: 0}).sort({name: 1}).limit(50);
+        var glasses = await this.glass.find({}, {name: 1, _id: 0}).sort({name: 1});
+        var alcoholics = await this.alcoholic.find({}, {name: 1, _id: 0}).sort({name: 1});
+        return {
+            drinks: drinks,
+            totalDrinks: drinks.length,
+            filters: {
+                categories: categories,
+                ingredients: ingredients,
+                glasses: glasses,
+                alcoholicFilters: alcoholics
+            }
+        };
+    }
+
+    async filterDrinkList(filters) {
+
+    }
+
     // Gets drinks details of drink id
     async getDrinkDetails(id) {
         var drinkDetails = await this.getDrinkDetailAggregation().match({ id: id });
@@ -223,7 +246,8 @@ class DB {
                                 }}, 0
                             ]
                         },
-                        measure: "$$i.measure"
+                        measure: "$$i.measure",
+                        id: "$$i._id"
                     }}
                 }
             }
@@ -245,6 +269,7 @@ class DB {
         }
     }
 
+    // Clears database
     async clearData() {
         await this.category.deleteMany({});
         await this.alcoholic.deleteMany({});
