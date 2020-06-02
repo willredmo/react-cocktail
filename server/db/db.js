@@ -106,10 +106,18 @@ class DB {
     // Gets drink list and filters
     async getAllData() {
         var drinks = await this.drink.find({}, {id: 1, name: 1, thumbnail: 1, _id: 0}).sort({name: 1});
-        var categories = await this.category.find({}, {name: 1, _id: 0}).sort({name: 1});
-        var ingredients = await this.ingredient.find({ filter: true }, {name: 1, _id: 0}).sort({name: 1}).limit(50);
-        var glasses = await this.glass.find({}, {name: 1, _id: 0}).sort({name: 1});
-        var alcoholics = await this.alcoholic.find({}, {name: 1, _id: 0}).sort({name: 1});
+        var categories = [];
+        var categoriesData = await this.category.find({}, {name: 1, _id: 0}).sort({name: 1})
+        categoriesData.forEach(value => {categories.push(value.name)});
+        var ingredients = [];
+        var ingredientsData = await this.ingredient.find({ filter: true }, {name: 1, _id: 0}).sort({name: 1});
+        ingredientsData.forEach(value => {ingredients.push(value.name)});
+        var glasses = [];
+        var glassesData = await this.glass.find({}, {name: 1, _id: 0}).sort({name: 1});
+        glassesData.forEach(value => {glasses.push(value.name)});
+        var alcoholics = [];
+        var alcoholicsData = await this.alcoholic.find({}, {name: 1, _id: 0}).sort({name: 1});
+        alcoholicsData.forEach(value => {alcoholics.push(value.name)});
         return {
             drinks: drinks,
             totalDrinks: drinks.length,
@@ -122,8 +130,65 @@ class DB {
         };
     }
 
+    // Gets filtered drink list 
     async filterDrinkList(filters) {
+        var currentAggregation = this.getDrinkListAggregation().addFields({
+            lowerName: { $toLower: "$name"},
+        });
+        if (filters.search !== '') {
+            currentAggregation.match({ lowerName: {$regex: ".*"+filters.search+".*"} })
+        }
+        if (filters.categories.length !== 0) {
+            currentAggregation.match({ category: { $in: filters.categories } });
+        }
+        if (filters.glasses.length !== 0) {
+            currentAggregation.match({ glass: { $in: filters.glasses } });
+        }
+        if (filters.alcoholicFilters.length !== 0) {
+            currentAggregation.match({ alcoholic: { $in: filters.alcoholicFilters } });
+        }
+        
 
+        // Ingredients
+        // only filter ingredients
+        // ex: 3 ingredients
+        // drink has 2 and matches 2 good
+        // drink has 2 and matches 1 back 
+        // ex: 1 ingredient
+        // drink has 2 and matches 1 good
+        // drink has 4 and matches 0 bad
+        if (filters.ingredients.length !== 0) {
+            // Removes non-filter ingredients
+            currentAggregation.addFields({
+                "ingredients": {$filter:{
+                    input: "$ingredients",
+                    as: "item",
+                    cond: {$eq: ['$$item.filter', true]}
+                }}
+            });
+            
+            // Taking too long doing manually
+            var matchedDrinkIds = [];
+
+            var totalIngredients = filters.ingredients.length;
+            var drinks = await currentAggregation;
+            for (var i = 0; i < drinks.length; i++) {
+                const drink = drinks[i];
+                var totalMatches = 0;
+                drink.ingredients.forEach(ingredient => {
+                    if (filters.ingredients.includes(ingredient.name)) {
+                        totalMatches++;
+                    }
+                });
+                if (totalMatches >= totalIngredients) {
+                    matchedDrinkIds.push(drink.id);
+                }
+            }
+            currentAggregation.match({ id: { $in: matchedDrinkIds } });
+        }
+        
+        var filteredDrinkList = await currentAggregation.project({ name: 1, thumbnail: 1, id: 1, _id: 0 }).sort({name: 1});
+        return filteredDrinkList;
     }
 
     // Gets drinks details of drink id
@@ -142,6 +207,20 @@ class DB {
     // Wraps object in mongoose object type
     wrapObjectId(id) {
         return Mongoose.Types.ObjectId(id);
+    }
+
+    // Gets complete drink list
+    getDrinkListAggregation() {
+        return this.drink.aggregate([
+            this.getCategoryLookup(),
+            this.getGlassLookup(),
+            this.getAlcoholicLookup(),
+            // { $unwind: "$category" },
+            // { $unwind: "$alcoholic" },
+            // { $unwind: "$glass" },
+            this.getIngredientLookupFilter(),
+            this.getAddFieldsFilter()
+        ]);
     }
 
     // Gets complete drink details
@@ -207,6 +286,18 @@ class DB {
         }
     }
 
+    // Aggregation for filter ingredient lookup
+    getIngredientLookupFilter() {
+        return {
+            $lookup: {
+                from: 'ingredient',
+                localField: 'ingredients.ingredientId',
+                foreignField: '_id',
+                as: 'ingredients'
+            }
+        }
+    }
+
     // Adds fields for category, alcoholic, glass, and ingredients
     // Combines drink ingredients (id, measure) and ingredients aggregation (name, thumbnail)
     getAddFieldsAndCombineIngredients() {
@@ -226,7 +317,8 @@ class DB {
                                     input: { "$filter": {
                                         input: "$ingredientData",
                                         as: "id",
-                                        cond: { $eq: [ "$$id._id", "$$i.ingredientId"]}
+                                        cond: { $eq: [ "$$id._id", "$$i.ingredientId" ] }
+                                        // "$$id.filter", true
                                     }},
                                     as: "id",
                                     in: "$$id.name"
@@ -239,7 +331,7 @@ class DB {
                                     input: { "$filter": {
                                         input: "$ingredientData",
                                         as: "id",
-                                        cond: { $eq: [ "$$id._id", "$$i.ingredientId"]}
+                                        cond: { $eq: [ "$$id._id", "$$i.ingredientId"] }
                                     }},
                                     as: "id",
                                     in: "$$id.thumbnail"
@@ -250,6 +342,17 @@ class DB {
                         id: "$$i._id"
                     }}
                 }
+            }
+        }
+    }
+
+    // Adds fields for category, alcoholic and, glass
+    getAddFieldsFilter() {
+        return { 
+            $addFields: {
+                category: "$category.name",
+                alcoholic: "$alcoholic.name",
+                glass: "$glass.name",
             }
         }
     }

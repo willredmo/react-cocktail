@@ -6,12 +6,7 @@
     position: relative;
 
     .CocktailItem {
-        position: absolute;
-        width: calc(100% - 5px);
-        height: 200px;
         margin-bottom: 5px;
-        margin-left: 3px;
-        margin-right: 3px;
         button {
             height: 100%;
         }

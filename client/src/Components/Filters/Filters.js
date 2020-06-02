@@ -3,10 +3,14 @@ import './Filters.scss';
 import { TextField, Checkbox } from '@material-ui/core';
 import { CheckBox, CheckBoxOutlineBlank} from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
+import { VariableSizeList } from 'react-window';
+import { useTheme, makeStyles } from "@material-ui/core/styles";
+import PropTypes from "prop-types";
 
 const Filters = forwardRef((props, ref) => {
     // Hide show filters for mobile
     const [showFilters, setShowFilters] = useState(false);
+    const [canSendFilters, setCanSendFilters] = useState(false);
 
     // Filters
     const [search, setSearch] = useState("");
@@ -19,27 +23,31 @@ const Filters = forwardRef((props, ref) => {
         setSearch(event.target.value);
     };
 
-    const handleCategories = (event, newValue) => {
-        setCategories(newValue);
+    const handleCategories = (event, value) => {
+        setCategories(value);
+    };
+    
+    const handleIngredients = (event, value) => {
+        setIngredients(value);
     };
 
-    const handleIngredients = (event, newValue) => {
-        setIngredients(newValue);
+    const handleGlasses = (event, value) => {
+        setGlasses(value);
     };
 
-    const handleGlasses = (event, newValue) => {
-        setGlasses(newValue);
+    const handleAlcoholicFilters = (event, value) => {
+        setAlcoholicFilters(value);
     };
 
-    const handleAlcoholicFilters = (event, newValue) => {
-        setAlcoholicFilters(newValue);
-    };
+    var canSendFilter = false;
+    useEffect((test) => {
+        // Don't send filters on load
+        if (!canSendFilters) {
+            setCanSendFilters(true);
+            return;
+        }
 
-    // console.log(props);
-
-
-    useEffect(() => {
-        // Send filters
+        // Prep filters
         const filters = {
             search: search,
             categories: categories,
@@ -47,25 +55,13 @@ const Filters = forwardRef((props, ref) => {
             glasses: glasses,
             alcoholicFilters: alcoholicFilters
         };
-        
-        if (search !== "" || categories.length !== 0 || categories.length !== 0 
-                || ingredients.length !== 0 || glasses.length !== 0 || glasses.length !== 0) {
-            console.log("Send filters to backend");
-            // console.log(filters);
-        } else {
-            console.log("Show all");
-        }
+        props.sendFilters(filters);
              
     }, [search, categories, ingredients, glasses, alcoholicFilters]);
 
 
     useImperativeHandle(ref, () => ({
         handleShowFilters() {
-            if (!showFilters) {
-                console.log("Show");
-            } else {
-                console.log("Hide");
-            }
             setShowFilters(!showFilters);
         }
     }));
@@ -76,7 +72,9 @@ const Filters = forwardRef((props, ref) => {
                 <Checkbox
                     icon={<CheckBoxOutlineBlank fontSize="small" />}
                     checkedIcon={<CheckBox fontSize="small" />}
-                    style={{ marginRight: 8 }}
+                    style={{ 
+                        marginRight: 8 
+                    }}
                     checked={selected}
                     color="primary"
                 />
@@ -85,7 +83,7 @@ const Filters = forwardRef((props, ref) => {
         );
     };
 
-    const renderAutocomplete = (onChange, value, options, label ) => {
+    const RenderAutocomplete = (onChange, value, options, label) => {
         return (
             <Autocomplete
                 onChange={onChange}
@@ -93,16 +91,124 @@ const Filters = forwardRef((props, ref) => {
                 multiple
                 options={options}
                 disableCloseOnSelect
-                getOptionLabel={(option) => option.name}
-                renderOption={(option, { selected }) => (
-                    renderCheckBox(option.name, selected)
-                )}
+                getOptionLabel={(option) => option}
+                renderOption={(option, { selected }) => ( renderCheckBox(option, selected) )}
                 renderInput={(params) => (
                     <TextField {...params} variant="outlined" label={label} placeholder="" />
                 )}
             />
         );
     };
+
+    // For long autocomplete with react-window
+    const LISTBOX_PADDING = 8; // px
+
+    function renderRow(props) {
+      const { data, index, style } = props;
+      return React.cloneElement(data[index], {
+        style: {
+          ...style,
+          top: style.top + LISTBOX_PADDING
+        }
+      });
+    }
+    
+    const OuterElementContext = React.createContext({});
+    
+    const OuterElementType = React.forwardRef((props, ref) => {
+      const outerProps = React.useContext(OuterElementContext);
+      return <div ref={ref} {...props} {...outerProps} />;
+    });
+    
+    function useResetCache(data) {
+      const ref = React.useRef(null);
+      React.useEffect(() => {
+        if (ref.current != null) {
+          ref.current.resetAfterIndex(0, true);
+        }
+      }, [data]);
+      return ref;
+    }
+    
+    // Adapter for react-window
+    const ListboxComponent = React.forwardRef(function ListboxComponent(
+      props,
+      ref
+    ) {
+      const { children, ...other } = props;
+      const itemData = React.Children.toArray(children);
+      const theme = useTheme();
+      const itemCount = itemData.length;
+      const itemSize = 50;
+    
+      const getChildSize = child => {
+        return itemSize;
+      };
+    
+      const getHeight = () => {
+        if (itemCount > 8) {
+          return 8 * itemSize;
+        }
+        return itemData.map(getChildSize).reduce((a, b) => a + b, 0);
+      };
+    
+      const gridRef = useResetCache(itemCount);
+    
+      return (
+        <div ref={ref}>
+          <OuterElementContext.Provider value={other}>
+            <VariableSizeList
+              itemData={itemData}
+              height={getHeight() + 2 * LISTBOX_PADDING}
+              width="100%"
+              ref={gridRef}
+              outerElementType={OuterElementType}
+              innerElementType="ul"
+              itemSize={index => getChildSize(itemData[index])}
+              overscanCount={5}
+              itemCount={itemCount}
+            >
+              {renderRow}
+            </VariableSizeList>
+          </OuterElementContext.Provider>
+        </div>
+      );
+    });
+    
+    ListboxComponent.propTypes = {
+      children: PropTypes.node
+    };
+
+    const RenderLongAutocomplete = (onChange, value, options, label) => {
+      const classes = makeStyles({
+        listbox: {
+          boxSizing: "border-box",
+          "& ul": {
+            padding: 0,
+            margin: 0
+          }
+        }
+      })();
+    
+      return (
+        <Autocomplete
+          onChange={onChange}
+          value={value}
+          disableListWrap
+          disableCloseOnSelect
+          multiple
+          openOnFocus
+          classes={classes}
+          ListboxComponent={ListboxComponent}
+          options={options}
+          renderInput={params => (
+            <TextField {...params} variant="outlined" label={label} />
+          )}
+          renderOption={(option, { selected }) => ( renderCheckBox(option, selected) )}
+        />
+      );
+    }
+    
 
     return (
         // Content
@@ -112,16 +218,16 @@ const Filters = forwardRef((props, ref) => {
                 <TextField onChange={handleSearch} value={search} label="Search" variant="outlined" />
             </div>
             <div className="filter">
-                {renderAutocomplete(handleCategories, categories, props.data.categories, "Categories")}
+                {RenderAutocomplete(handleCategories, categories, props.data.categories, "Categories")}
             </div>
             <div className="filter">
-                {renderAutocomplete(handleIngredients, ingredients, props.data.ingredients, "Ingredients")}
+                {RenderLongAutocomplete(handleIngredients, ingredients, props.data.ingredients, "Ingredients")}
             </div>
             <div className="filter">
-                {renderAutocomplete(handleGlasses, glasses, props.data.glasses, "Glasses")}
+                {RenderAutocomplete(handleGlasses, glasses, props.data.glasses, "Glasses")}
             </div>
             <div className="filter">
-                {renderAutocomplete(handleAlcoholicFilters, alcoholicFilters, props.data.alcoholicFilters, "Alcohol Content")}
+                {RenderAutocomplete(handleAlcoholicFilters, alcoholicFilters, props.data.alcoholicFilters, "Alcohol Content")}
             </div>
         </div>
     );

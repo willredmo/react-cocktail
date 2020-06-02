@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './App.scss';
 import Header from './Components/Header/Header';
-import { getAllData, getDrinkDetails, getRandomDrinkDetails } from "./API";
+import { getAllData, getDrinkDetails, getRandomDrinkDetails, getFilteredDrinks } from "./API";
 import CocktailDetail from './Components/CocktailDetail/CocktailDetail';
 import CocktailList from './Components/CocktailList/CocktailList';
 import Filters from './Components/Filters/Filters';
@@ -14,7 +14,10 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 const App = () => {
   const filterRef = useRef();
 
-  const [data, setData] = useState({});
+  const [loaded, setloaded] = useState(false);
+  const [drinks, setDrinks] = useState([]);
+  const [filters, setFilters] = useState({});
+  const [totalDrinks, setTotalDrinks] = useState(0);
   const [redirect, setRedirect] = useState(null);
   const [currentDrink, setCurrentDrink] = useState(null);
 
@@ -38,8 +41,10 @@ const App = () => {
       // Gets drink list and 
       const fetchData = async () => {
         const data = await getAllData();
-        console.log(data);
-        setData(data);
+        setTotalDrinks(data.drinks.length);
+        setFilters(data.filters);
+        setDrinks(data.drinks);
+        setloaded(true);
       }
   
       fetchData();
@@ -75,6 +80,12 @@ const App = () => {
     }
   };
 
+  const handleSendFilters = async (filters) => {
+    const drinks = await getFilteredDrinks(filters);
+    setDrinks(drinks);
+    setTotalDrinks(drinks.length);
+  }
+
   const theme = createMuiTheme({
     palette: {
       primary: {
@@ -91,22 +102,22 @@ const App = () => {
       <ThemeProvider theme={theme}>
         <Router>
           <Header handleClick={handleGetRandomDrink}/>
-          {Object.keys(data).length !== 0 &&
+          {loaded ?
             <div id="content" className={currentDrink !== null ? "showingDrink" : "" }>
               <div id="left">
                 <Filters data={{
-                  categories: data.filters.categories,
-                  ingredients: data.filters.ingredients,
-                  glasses: data.filters.glasses,
-                  alcoholicFilters: data.filters.alcoholicFilters
-                }} ref={filterRef}/>
+                  categories: filters.categories,
+                  ingredients: filters.ingredients,
+                  glasses: filters.glasses,
+                  alcoholicFilters: filters.alcoholicFilters
+                }} ref={filterRef} sendFilters={handleSendFilters}/>
                 <div className="filterTotalDrinks">
                   <Button className="showFilters" variant="contained" color="primary" size="small" startIcon={<MenuOpen/>} onClick={() => filterRef.current.handleShowFilters()}>
                     Filters
                   </Button>
-                  <span className="totalDrinks">Cocktails: {data.totalDrinks}</span>
+                  <span className="totalDrinks">Cocktails: {totalDrinks}</span>
                 </div>
-                <CocktailList drinks={data.drinks} selectDrink={handleSelectDrink} currentDrink={currentDrink}/>
+                <CocktailList drinks={drinks} selectDrink={handleSelectDrink} currentDrink={currentDrink}/>
               </div>
               <div id="right">
                 {redirect !== null &&
@@ -122,10 +133,7 @@ const App = () => {
                 </Switch>
               </div>
             </div>
-          }
-          {Object.keys(data).length === 0 &&
-            <h1>Loading Data</h1>
-          }
+          : <h1>Loading Data</h1> }
       </Router>
       </ThemeProvider>
     </div>

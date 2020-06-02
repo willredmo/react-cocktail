@@ -15,3 +15,13 @@ export const getRandomDrinkDetails = async () => {
     const response = await Axios.get("/api/getRandomDrinkDetails");
     return response.data;
 };
+
+export const getFilteredDrinks = async (filters) => {
+    console.log(filters);
+    const response = await Axios({
+        method: 'post',
+        url: '/api/filterDrinkList',
+        data: filters
+    });
+    return response.data;
+}

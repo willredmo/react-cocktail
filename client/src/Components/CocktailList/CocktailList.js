@@ -1,120 +1,88 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import './CocktailList.scss';
 import { Card, CardActionArea, Typography, CardMedia  } from '@material-ui/core';
 import { Link } from "react-router-dom";
+import { FixedSizeList, VariableSizeList } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
+
+const MARGIN = 5;
 
 const CocktailList = (props) => {
-    const maxItemsDisplayed = 12;
-    const itemTopMargin = 5;
-    const [showIndexes, setShowIndexes] = useState([]);
-    const [itemHeight, setItemHeight] = useState(200);
-    
+
+    const getItemHeight = () => {
+        if (window.innerWidth > 700) {
+            return 210;
+        }
+        return 310;
+    }
+
+    var listRef = React.createRef();
 
     window.addEventListener('resize', (event) => {
-        if (window.innerWidth > 700) {
-            setItemHeight(200);
-        } else {
-            setItemHeight(300);
+        if (listRef.current != null) {
+            listRef.current.resetAfterIndex(0);
         }
     });
 
-    useEffect(() => {
-        init();
-    },[]);
 
-    const init = () => {
-        const hasProps = props != null;
-        if (!hasProps) {
-            setTimeout(() => { init()}, 100);
-        } else {
-            if (window.innerWidth > 700) {
-                setItemHeight(200);
-            } else {
-                setItemHeight(300);
-            }
-            // Display first group of drinks
-            var temp = [];
-            for (var i = 0; i < maxItemsDisplayed; i++) {
-                temp.push(i);
-            }
-            setShowIndexes(temp);
+    const getStyle = (style) => {
+        if (style.bottom === undefined) {
+            style.bottom = 0;
         }
+        const styles = {
+            ...style,
+            top: style.top + MARGIN,
+            bottom: style.bottom + MARGIN,
+            left: style.left + MARGIN,
+            right: style.left + MARGIN,
+            width: "calc("+style.width+"-"+(MARGIN + MARGIN)+"px)",
+            height: style.height - (MARGIN + MARGIN)
+        }
+        return styles;
     }
 
 
-    // Dont show every element to speed up app
-    const handleScroll = (event) => {
-        const totalItems = props.drinks.length;
-        const listElement = event.target;
-        const scrollTop = listElement.scrollTop;
-        // const scrollHeight = listElement.scrollHeight;
-        // const listHeight = listElement.clientHeight;
-
-        const totalItemHeight = (itemHeight + itemTopMargin)
-        const middleIndex = Math.floor(scrollTop / totalItemHeight);
-        var start = middleIndex - (maxItemsDisplayed/2),
-            end = middleIndex + (maxItemsDisplayed/2);
-        if (start < 0) {
-            start = 0;
-        }
-        if (end > totalItems - 1) {
-            end = totalItems - 1;
-        }
-        var temp = [];
-        for (var i = start; i <= end; i++) {
-            temp.push(i);
-        }
-        setShowIndexes(temp);
+    const CocktailItem = ({ index, style }) => {
+        const drink = props.drinks[index];
+    
+        return (
+            <Card style={getStyle(style)} 
+                className={"CocktailItem"}>
+                <Link to={"/cocktail/"+drink.id} onClick={() => { props.selectDrink(drink.id) }}>
+                    <CardActionArea>
+                        <CardMedia
+                            className="thumbnail"
+                            image={drink.thumbnail}
+                        />
+                        <Typography className="drinkName" gutterBottom variant="h5" component="h2">
+                            {drink.name}
+                        </Typography>
+                    </CardActionArea>
+                </Link>
+            </Card>
+        );
     };
 
-    const FillerHeight = {
-        height: (itemHeight + itemTopMargin) * props.drinks.length + "px"
-    }
-
     return (
-        <div id="CocktailList" onScroll={handleScroll}>
-            {Object.keys(props.drinks).map((key, index) => {
-                var show = false;
-                // console.log(itemHeight);
-                if (showIndexes.length > 0) {
-                    if (showIndexes.includes(index)) {
-                        show = true;
-                    }
-                }
-                const drink = props.drinks[key];
-                var className = "";
-                if (props.currentDrink !== null) {
-                    className = props.currentDrink.id === drink.id ? "active" : "";
-                }
-                var top = {top: (itemHeight + itemTopMargin) * index + "px"};
-                if (!show) {
-                    return;
-                }
-                return (
-                    <CocktailItem top={top} className={className} key={drink.id} drink={drink} onClick={props.selectDrink}/>
-                );
-            })}
-            <div className="filler" style={FillerHeight}></div>
+        <div id="CocktailList">
+            <AutoSizer>
+                {({ height, width }) => (
+                    <VariableSizeList
+                        ref={listRef}
+                        height={height}
+                        itemCount={props.drinks.length}
+                        itemSize={getItemHeight}
+                        width={width}
+                    >
+                        {CocktailItem}
+                    </VariableSizeList>
+                )}
+                
+            </AutoSizer>
         </div>
     );
 };
 
-const CocktailItem = (props) => {
-    return (
-        <Card style={props.top} className={"CocktailItem "+ props.className}>
-            <Link to={"/cocktail/"+props.drink.id} onClick={() => { props.onClick(props.drink.id) }}>
-                <CardActionArea>
-                    <CardMedia
-                        className="thumbnail"
-                        image={props.drink.thumbnail}
-                    />
-                    <Typography className="drinkName" gutterBottom variant="h5" component="h2">
-                        {props.drink.name}
-                    </Typography>
-                </CardActionArea>
-            </Link>
-        </Card>
-    );
-};
+
 
 export default CocktailList;
