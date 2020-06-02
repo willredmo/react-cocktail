@@ -137,7 +137,6 @@ const Filters = forwardRef((props, ref) => {
     ) {
       const { children, ...other } = props;
       const itemData = React.Children.toArray(children);
-      const theme = useTheme();
       const itemCount = itemData.length;
       const itemSize = 50;
     

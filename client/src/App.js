@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import './App.scss';
 import Header from './Components/Header/Header';
 import { getAllData, getDrinkDetails, getRandomDrinkDetails, getFilteredDrinks } from "./API";
@@ -73,6 +73,8 @@ const App = () => {
     var drink = await getDrinkDetails(id);
     setCurrentDrink(drink);
   }
+  // To prevent list from reloading with unlrelated props
+  const memorizedSelectDrink = useCallback(handleSelectDrink, []);
 
   const renderCocktail = (routerProps) => {
     if (currentDrink != null) {
@@ -117,7 +119,7 @@ const App = () => {
                   </Button>
                   <span className="totalDrinks">Cocktails: {totalDrinks}</span>
                 </div>
-                <CocktailList drinks={drinks} selectDrink={handleSelectDrink} currentDrink={currentDrink}/>
+                <CocktailList drinks={drinks} selectDrink={memorizedSelectDrink}/>
               </div>
               <div id="right">
                 {redirect !== null &&

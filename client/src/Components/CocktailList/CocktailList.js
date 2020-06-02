@@ -1,13 +1,15 @@
-import React, { useState, useEffect, forwardRef } from 'react';
+import React, { memo } from 'react';
 import './CocktailList.scss';
 import { Card, CardActionArea, Typography, CardMedia  } from '@material-ui/core';
 import { Link } from "react-router-dom";
-import { FixedSizeList, VariableSizeList } from 'react-window';
+import { VariableSizeList } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
 const MARGIN = 5;
 
 const CocktailList = (props) => {
+    console.log("reload");
+    console.log(props);
 
     const getItemHeight = () => {
         if (window.innerWidth > 700) {
@@ -85,4 +87,4 @@ const CocktailList = (props) => {
 
 
 
-export default CocktailList;
+export default memo(CocktailList);

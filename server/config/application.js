@@ -48,7 +48,7 @@ Server.app.use('/', router);
 
 // DB
 var DB = Server.require("db/db.js");
-Server.db = new DB(configFile.dbUrl, "db");
+Server.db = new DB(process.env.DBURL || configFile.dbUrl, "db");
 Server.db.connect().then((res) => {
     logger.log("db", res);
 }).catch((rej) => {
