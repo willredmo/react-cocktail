@@ -136,7 +136,7 @@ class DB {
             lowerName: { $toLower: "$name"},
         });
         if (filters.search !== '') {
-            currentAggregation.match({ lowerName: {$regex: ".*"+filters.search+".*"} })
+            currentAggregation.match({ lowerName: {$regex: ".*"+filters.search.toLowerCase()+".*"} })
         }
         if (filters.categories.length !== 0) {
             currentAggregation.match({ category: { $in: filters.categories } });

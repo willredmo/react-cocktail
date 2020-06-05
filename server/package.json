@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "local": "nodemon index.js"
+    "local": "nodemon index.js",
+    "build": "cp -avr ./ ../../deploy/server && rm ../../deploy/server/config/secret.json"
   },
   "author": "",
   "license": "ISC",

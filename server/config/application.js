@@ -3,8 +3,7 @@ var env = process.env.NODE_ENV || "development",
     path = require("path"),
     express = require("express"),
     bodyParser = require('body-parser'),
-    Logger = require("../config/logger.js"),
-    configFile = require("./secret.json");
+    Logger = require("../config/logger.js");
 
 // Logger
 global.logger = new Logger([
@@ -48,7 +47,14 @@ Server.app.use('/', router);
 
 // DB
 var DB = Server.require("db/db.js");
-Server.db = new DB(process.env.DBURL || configFile.dbUrl, "db");
+var DBURL = "";
+try {
+    var configFile = require("./secret.json");
+    DBURL = configFile.dbUrl;
+} catch (err) {
+    console.log("Local db url not found");
+}
+Server.db = new DB(process.env.DBURL || DBURL, "db");
 Server.db.connect().then((res) => {
     logger.log("db", res);
 }).catch((rej) => {
@@ -57,7 +63,4 @@ Server.db.connect().then((res) => {
 
 
 // Client
-// console.log(__dirname + "/../../client/build");
-// console.log(__dirname);
-// fs.readFile(__dirname + '/../../client/build/index.html');
 Server.app.use(express.static(__dirname + "/../../client/build")); // for static content

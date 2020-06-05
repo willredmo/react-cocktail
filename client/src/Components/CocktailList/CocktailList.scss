@@ -1,6 +1,7 @@
 #CocktailList {
-    width: 50%;
-    height: calc(100% - 40px);
+    // width: 50%;
+    width: 100%;
+    height: calc(100% - 50px);
     overflow-y: auto;
     // overflow-x: hidden;
     position: relative;
@@ -37,12 +38,12 @@
     
 }
 
-/* Medium sized screen */
-@media screen and (max-width: 1300px) {
-    #CocktailList {
-        width: 100%;
-    }
-}
+// /* Medium sized screen */
+// @media screen and (max-width: 1300px) {
+//     #CocktailList {
+//         width: 100%;
+//     }
+// }
 
 /* Small sized screens */
 @media screen and (max-width: 700px) {

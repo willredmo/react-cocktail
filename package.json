@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "cd server && npm start",
-    "local": "cd server && npm run local"
+    "local": "cd server && npm run local",
+    "build": "npm run build --prefix server/ && npm run build --prefix client/"
   },
   "author": "",
   "license": "ISC"

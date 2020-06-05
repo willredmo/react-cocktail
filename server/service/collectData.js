@@ -2,8 +2,8 @@ var axios = require("axios");
 
 exports.collectData = async (req, res) => {
     // Disable so users cannot reset data
-    res.send("Cannot collect data at moment");
-    return;
+    // res.send("Cannot collect data at moment");
+    // return;
 
     // Todo fix
     // {
@@ -190,6 +190,11 @@ exports.collectData = async (req, res) => {
         }
 
         // Alcoholic
+        if (drink.strAlcoholic === "non alcoholic") {
+            drink.strAlcoholic = "Non Alcoholic";
+        } else if (drink.strAlcoholic === "Optional alcohol") {
+            drink.strAlcoholic = "Optional Alcohol";
+        }
         if (!data.alcoholics.includes(drink.strAlcoholic)) {
             data.alcoholics.push(drink.strAlcoholic);
             var newAlcoholic = await Server.db.insertAlcoholic({ name: drink.strAlcoholic });

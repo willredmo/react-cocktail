@@ -8,9 +8,6 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 const MARGIN = 5;
 
 const CocktailList = (props) => {
-    console.log("reload");
-    console.log(props);
-
     const getItemHeight = () => {
         if (window.innerWidth > 700) {
             return 210;
@@ -50,7 +47,7 @@ const CocktailList = (props) => {
         return (
             <Card style={getStyle(style)} 
                 className={"CocktailItem"}>
-                <Link to={"/cocktail/"+drink.id} onClick={() => { props.selectDrink(drink.id) }}>
+                <Link to={"/"+drink.id} onClick={() => { props.selectDrink(drink.id) }}>
                     <CardActionArea>
                         <CardMedia
                             className="thumbnail"

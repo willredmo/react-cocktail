@@ -8,7 +8,7 @@ import Filters from './Components/Filters/Filters';
 import { BrowserRouter as Router, Switch, Route, Redirect  } from "react-router-dom";
 import { MenuOpen } from '@material-ui/icons';
 import { Button } from '@material-ui/core';
-import  { teal, blue } from '@material-ui/core/colors';
+import  { red, blue } from '@material-ui/core/colors';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
 const App = () => {
@@ -26,8 +26,8 @@ const App = () => {
       // Sets current drink according url params
       const getCocktialFromParam = async () => {
         const path = window.location.pathname;
-        if (/^\/cocktail\/\d+$/.test(path)) {
-          var drinkId = path.split("/")[2];
+        if (/^\/\d+$/.test(path)) {
+          var drinkId = path.split("/")[1];
           var drink = await getDrinkDetails(drinkId);
           if (drink.hasOwnProperty("message")) {
             console.log(drink.message);
@@ -54,7 +54,7 @@ const App = () => {
   // Sets url to current drink which tells router to render current drink
   useEffect(() => {
     if (currentDrink != null) {
-      setRedirect("/cocktail/"+currentDrink.id);
+      setRedirect("/"+currentDrink.id);
     }
   }, [currentDrink]);
 
@@ -84,9 +84,12 @@ const App = () => {
 
   const handleSendFilters = async (filters) => {
     const drinks = await getFilteredDrinks(filters);
+    console.log(drinks);
     setDrinks(drinks);
     setTotalDrinks(drinks.length);
   }
+
+  const memorizedSendFilters = useCallback(handleSendFilters, []);
 
   const theme = createMuiTheme({
     palette: {
@@ -94,7 +97,7 @@ const App = () => {
         main: blue[600]
       },
       secondary: {
-        main: teal[900]
+        main: red[500]
       }
     },
   });
@@ -112,9 +115,9 @@ const App = () => {
                   ingredients: filters.ingredients,
                   glasses: filters.glasses,
                   alcoholicFilters: filters.alcoholicFilters
-                }} ref={filterRef} sendFilters={handleSendFilters}/>
+                }} ref={filterRef} sendFilters={memorizedSendFilters}/>
                 <div className="filterTotalDrinks">
-                  <Button className="showFilters" variant="contained" color="primary" size="small" startIcon={<MenuOpen/>} onClick={() => filterRef.current.handleShowFilters()}>
+                  <Button className="showFilters" variant="contained" color="primary" size="small" startIcon={<MenuOpen/>} onClick={() => filterRef.current.open()}>
                     Filters
                   </Button>
                   <span className="totalDrinks">Cocktails: {totalDrinks}</span>
@@ -126,7 +129,7 @@ const App = () => {
                   <Redirect to={redirect} />
                 }
                 <Switch>
-                  <Route path="/cocktail/:id" render={renderCocktail} />
+                  <Route path="/:id" render={renderCocktail} />
                   <Route path="/">
                     <div className="selectCocktail">
                       <h1>Please Select a Cocktail to View Its Details</h1>

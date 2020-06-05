@@ -1,40 +1,47 @@
 #filters {
-    padding: 10px;
+    // padding: 30px;
     height: 100%;
-    width: calc(50% - 20px);
-    padding: 0 10px;
+    // width: 700px;
+    // padding: 0 10px;
     overflow-y: auto;
-    h1 {
+    h2 {
         font-weight: 300;
+        font-size: 30px;
+    }
+    .closeIcon {
+        position: absolute;
+    right: 0;
     }
     .filter {
         margin: 10px 0;
+        padding: 0 15px;
         display: flex;
-        width: 100%;
-        & > .MuiFormControl-root, & > .MuiAutocomplete-root  {
+        width: calc(600px - 30px);
+        & > div {
             width: 100%;
+            .MuiFormControl-root {
+                width: 100%;
+            } 
         }
     }
 }
 
-/* Medium sized screen */
-@media screen and (max-width: 1300px) {
+// /* Medium sized screen */
+@media screen and (max-width: 600px) {
     #filters {
-        right: 100%;
-        width: calc(100% - 20px);
-        background-color: #F7F7F7;
-        transition: right 1s;
-        position: absolute;
-        z-index: 1;
-        top: 40px;
-        height: calc(100% - 40px);
+        // right: 100%;
+        // width: calc(100% - 20px);
+        // background-color: #F7F7F7;
+        // transition: right 1s;
+        // position: absolute;
+        // z-index: 1;
+        // top: 40px;
+        // height: calc(100% - 40px);
+        .filter {
+            width: calc(100% - 30px);
+        }
     }
-
-    #filters.show {
-        right: 0;
-    }
-
-    #filters.hide {
-        right: 100%;
+    .MuiDialog-paperWidthSm {
+        width: 100%;       
     }
 }
