@@ -5,6 +5,7 @@
     position: relative;
 
     .CocktailItem {
+        height: 300px;
         margin-bottom: 5px;
         button {
             height: 100%;
@@ -16,7 +17,7 @@
         .thumbnail {
             top: -10px;
             position: relative;
-            height: 140px;
+            height: 240px;
             filter: grayscale(90%);
             transition: all 300ms;
         }
@@ -34,6 +35,18 @@
         transform: scale(1.15);
     }
     
+}
+
+/* Small sized screens */
+@media screen and (max-width: 1300px) {
+    #CocktailList {
+        .CocktailItem {
+            height: 200px;
+            .thumbnail {
+                height: 140px;
+            }
+        }
+    }
 }
 
 /* Small sized screens */

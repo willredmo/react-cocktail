@@ -9,7 +9,7 @@ const MARGIN = 5;
 
 const CocktailList = (props) => {
     const getItemHeight = () => {
-        if (window.innerWidth > 700) {
+        if (window.innerWidth > 700 && window.innerWidth < 1300) {
             return 210;
         }
         return 310;
