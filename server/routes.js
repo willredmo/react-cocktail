@@ -1,19 +1,19 @@
 var router = require("express").Router();
 
-// Set client route
-router.get('/', (req, res) => {
-    res.sendFile(Server.path.resolve("../client/build/index.html"));
-});
-
 // Set api routes
 var apiService = Server.require("service/api.js");
-router.route("/api/getAllData").get(apiService.getAllData);
-router.route("/api/filterDrinkList").post(apiService.filterDrinkList);
-router.route("/api/getDrinkDetails/:drinkId").get(apiService.getDrinkDetails);
-router.route("/api/getRandomDrinkDetails").get(apiService.getRandomDrinkDetails);
+router.get("/api/GetAllData", apiService.getAllData);
+router.post("/api/filterDrinkList", apiService.filterDrinkList);
+router.get("/api/getDrinkDetails/:drinkId", apiService.getDrinkDetails);
+router.get("/api/getRandomDrinkDetails", apiService.getRandomDrinkDetails);
 
 // Set get data route
 var dataService = Server.require("service/collectData.js");
-router.route("/collectData").get(dataService.collectData);
+router.get("/api/collectData", dataService.collectData);
+
+// Set client route
+router.get(['/','/:cocktailId'], (req, res) => {
+    res.sendFile(Server.path.resolve("../client/build/index.html"));
+});
 
 module.exports = router;
