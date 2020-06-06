@@ -1,8 +1,5 @@
 #filters {
-    // padding: 30px;
     height: 100%;
-    // width: 700px;
-    // padding: 0 10px;
     overflow-y: auto;
     h2 {
         font-weight: 300;
@@ -29,14 +26,6 @@
 // /* Medium sized screen */
 @media screen and (max-width: 600px) {
     #filters {
-        // right: 100%;
-        // width: calc(100% - 20px);
-        // background-color: #F7F7F7;
-        // transition: right 1s;
-        // position: absolute;
-        // z-index: 1;
-        // top: 40px;
-        // height: calc(100% - 40px);
         .filter {
             width: calc(100% - 30px);
         }

@@ -2,21 +2,9 @@ var axios = require("axios");
 
 exports.collectData = async (req, res) => {
     // Disable so users cannot reset data
-    // res.send("Cannot collect data at moment");
-    // return;
+    res.send("Cannot collect data at moment");
+    return;
 
-    // Todo fix
-    // {
-    //     "_id": "5ed2a820a89c34630483dc82",
-    //     "name": "Non Alcoholic",
-    //     "__v": 0
-    // },
-    // {
-    //     "_id": "5ed2a815a89c34630483d8b6",
-    //     "name": "Non alcoholic",
-    //     "__v": 0
-    // },
-    
     // Clear old data
     await Server.db.clearData();
 
@@ -158,10 +146,31 @@ exports.collectData = async (req, res) => {
         "Vanilla extract"
     ];
 
-    
+    const ignoreDrinks = [
+        "15395",
+        "16405",
+        "15182",
+        "17196",
+        "11288",
+        "14466",
+        "15743",
+        "14053",
+        "11872",
+        "13198",
+        "17122",
+        "13625",
+        "178306"
+    ];
 
     for (var i = 0; i < drinkIds.length; i++) {
+        if (ignoreDrinks.includes(drinkIds[i])) {
+            i++;
+            if (i >= drinkIds.length) {
+                break;
+            }
+        }
         var drink = drinkMap[[drinkIds[i]]];
+        
         var newDrink = {
             id: parseInt(drink.idDrink),
             name: drink.strDrink,
