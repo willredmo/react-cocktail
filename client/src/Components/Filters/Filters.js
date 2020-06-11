@@ -5,7 +5,7 @@ import { CheckBox, CheckBoxOutlineBlank, Close } from '@material-ui/icons';
 import { Autocomplete } from '@material-ui/lab';
 import { VariableSizeList } from 'react-window';
 import { makeStyles } from "@material-ui/core/styles";
-import { BrowserView, MobileView } from "react-device-detect";
+import { BrowserView, MobileView, isMobile } from "react-device-detect";
 
 const Filters = forwardRef((props, ref) => {
     // hide show dialog
@@ -71,6 +71,14 @@ const Filters = forwardRef((props, ref) => {
         setIngredients([]);
         setGlasses([]);
         setAlcoholicFilters([]);
+    }
+
+    const handleFullScreen = () => {
+        if (isMobile) {
+            return true;
+        } else {
+            return false;
+        }s
     }
 
     useEffect(() => {
@@ -194,15 +202,11 @@ const Filters = forwardRef((props, ref) => {
         const itemCount = itemData.length;
         const itemSize = 50;
 
-        const getChildSize = child => {
-            return itemSize;
-        };
-
         const getHeight = () => {
             if (itemCount > 8) {
                 return 8 * itemSize;
             }
-            return itemData.map(getChildSize).reduce((a, b) => a + b, 0);
+            return itemData.map(itemSize).reduce((a, b) => a + b, 0);
         };
 
         const gridRef = useResetCache(itemCount);
@@ -217,7 +221,7 @@ const Filters = forwardRef((props, ref) => {
                         ref={gridRef}
                         outerElementType={OuterElementType}
                         innerElementType="ul"
-                        itemSize={index => getChildSize(itemData[index])}
+                        itemSize={itemSize}
                         overscanCount={5}
                         itemCount={itemCount}
                     >
@@ -261,10 +265,10 @@ const Filters = forwardRef((props, ref) => {
 
     return (
         // Content
-        <Dialog onClose={handleClose} open={open}>
+        <Dialog fullScreen={handleFullScreen()} onClose={handleClose} open={open}>
             <div id="filters">
                 <IconButton className="closeIcon" onClick={() => {setOpen(false)}}>
-                    <Close fontSize="inherit" />
+                    <Close fontSize="inherit"/>
                 </IconButton>
                 <DialogTitle id="simple-dialog-title">Filters</DialogTitle>
                 <div className="filter">
