@@ -78,7 +78,7 @@ const Filters = forwardRef((props, ref) => {
             return true;
         } else {
             return false;
-        }s
+        }
     }
 
     useEffect(() => {
